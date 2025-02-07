@@ -28,6 +28,12 @@ const App: React.FC = () => {
     }
   };
 
+  /**
+   * Renders a validation message if the input query is invalid and has some content.
+   * The message will prompt the user to enter a valid domain or IP address.
+   *
+   * @returns {JSX.Element | null} - Returns a JSX element with a validation message if the input is invalid, otherwise returns `null`.
+   */
   const renderValidationMessage = () => {
     if (!isValidInput(query) && query.length > 0) {
       return (
@@ -39,16 +45,36 @@ const App: React.FC = () => {
     return null;
   };
 
+  /**
+   * Handles the change event for the input field.
+   * Updates the state with the current value of the input.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The event object from the input field.
+   * @returns {void}
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
   };
 
+  /**
+   * Handles the form submission event.
+   * Prevents the default form submission behavior and calls the `fetchLookupData` function.
+   *
+   * @param {React.FormEvent} e - The event object from the form submission.
+   * @returns {void}
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     fetchLookupData();
   };
 
+  /**
+   * Clears the result and resets any error messages.
+   * Sets the `result` state to `null` and clears the `error` state.
+   *
+   * @returns {void}
+   */
   const handleClear = () => {
     setResult(null);
     setError("");
