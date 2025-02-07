@@ -16,7 +16,7 @@ const App: React.FC = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/lookup",
+        `${process.env.REACT_APP_API_URL}/lookup`,
         { query },
         { headers: { "Content-Type": "application/json" } }
       );
