@@ -1,4 +1,4 @@
-name: Frontend CI/CD
+name: Deploy Frontend to Heroku
 
 on:
   push:
@@ -6,43 +6,21 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache
-          key: ${{ runner.os }}-frontend-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-frontend-
-
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Login to Heroku Container Registry
+        run: echo ${{ secrets.HEROKU_API_KEY }} | docker login --username=_ --password-stdin registry.heroku.com
 
       - name: Build Docker image
-        run: |
-          docker build -t shyleshraj/lookup-frontend:latest .
+        run: docker build -t registry.heroku.com/lookup-frontend/web .
 
-      - name: Push Docker image to Docker Hub
-        run: |
-          docker push shyleshraj/lookup-frontend:latest
+      - name: Push Docker image
+        run: docker push registry.heroku.com/lookup-frontend/web
 
-      - name: Login to Heroku
-        uses: akshnz/heroku-docker-action@v0.1.0
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-
-      - name: Set Heroku remote
-        run: git remote add heroku https://git@heroku.com/<your-heroku-app-name>.git
-
-      - name: Deploy to Heroku
-        run: |
-          git push heroku master
+      - name: Release to Heroku
+        run: heroku container:release web -a lookup-frontend
