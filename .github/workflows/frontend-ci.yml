@@ -1,4 +1,4 @@
-name: Deploy Frontend to Heroku
+name: Deploy React App to Heroku
 
 on:
   push:
@@ -10,17 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Login to Heroku Container Registry
-        run: echo ${{ secrets.HEROKU_API_KEY }} | docker login --username=_ --password-stdin registry.heroku.com
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-      - name: Build Docker image
-        run: docker build -t registry.heroku.com/lookup-frontend/web .
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Push Docker image
-        run: docker push registry.heroku.com/lookup-frontend/web
+      - name: Build React App
+        run: npm run build
 
-      - name: Release to Heroku
-        run: heroku container:release web -a lookup-frontend
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          usedocker: false
+          branch: main
